@@ -13,3 +13,29 @@
 .table td {
     padding: 5px;
 }
+
+.error {
+    color: red;
+}
+.flexOuter,
+.flexInner {
+  list-style-type: none;
+  padding: 0;
+}
+.flexOuter {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+.flexOuter li,
+.flexInner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: left;
+    flex-direction: column;
+}
+
+.container {
+    display: flex;
+
+}
