@@ -1,4 +1,3 @@
-import { SavingsAccount } from "@prisma/client";
 import styles from "./index.module.css";
 import { type NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -19,7 +18,6 @@ const Home: NextPage = () => {
         <div className={styles.container}>
           <div className={styles.showcaseContainer}>
             <AuthShowcase />
-            <AccountList />
           </div>
         </div>
       </main>
@@ -39,10 +37,14 @@ const AuthShowcase: React.FC = () => {
 
   return (
     <div className={styles.authContainer}>
+      <nav>
+        <Link href="/accounts">Accounts</Link>
+      </nav>
       <p className={styles.showcaseText}>
         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
         {secretMessage && <span> - {secretMessage}</span>}
       </p>
+      
       <button
         className={styles.loginButton}
         onClick={sessionData ? () => void signOut() : () => void signIn()}
@@ -53,25 +55,3 @@ const AuthShowcase: React.FC = () => {
   );
 };
 
-const AccountList: React.FC = () => {
-  const { data: sessionData } = useSession();
-  const { mutate } = api.dave.createSavingsAccount.useMutation({
-    onSucces: () => {
-      console.log("account created");
-      void null;
-    }
-  })
-  const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery();
-  return (
-    <>
-      <p>Accounts</p>
-      { myAccounts?.map( (account: SavingsAccount) => (
-        <div key={account.id}>{account?.name} - {account?.location}</div>
-      ))}
-      <>
-        <p>Add account</p>
-        
-      </>
-    </>
-  )
-}

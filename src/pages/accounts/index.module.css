@@ -1,0 +1,15 @@
+.table thead {
+    padding: 3px;
+    font-size: 30px;
+}
+.savingAccountEntry {
+    background-color: var(--light);
+    margin: 3px;
+    font-size: 24px;
+}
+.table {
+    border: 1px solid var(--dark);
+}
+.table td {
+    padding: 5px;
+}

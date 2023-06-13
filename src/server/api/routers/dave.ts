@@ -1,5 +1,5 @@
 
-import { SavingsAccount } from "@prisma/client";
+import { Account, SavingsAccount } from "@prisma/client";
 import { z } from "zod";
 import {
     createTRPCRouter,
@@ -7,12 +7,14 @@ import {
 } from "~/server/api/trpc";
 
 export const daveRouter = createTRPCRouter({
-    getAllSavingsAccount: protectedProcedure.query(({ ctx }) => {
-        return ctx.prisma.savingsAccount.findMany({
+    getAllSavingsAccount: protectedProcedure.query(async ({ ctx }) => {
+        const accounts = await ctx.prisma.savingsAccount.findMany({
             where: {
                 userId: ctx.session.user.id,
-            }
+            },
+            take: 10,
         });
+        return accounts;
     }),
     createSavingsAccount: protectedProcedure
         .input(
@@ -23,10 +25,12 @@ export const daveRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             const userId = ctx.session.user.id;
-            
+            if (userId === undefined) {
+                return
+            }
             const savingAccount = await ctx.prisma.savingsAccount.create({
                 data: {
-                    userId: userId,
+                    userId,
                     name: input.name,
                     location: input.location,
                 },

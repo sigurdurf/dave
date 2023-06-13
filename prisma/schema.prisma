@@ -14,6 +14,12 @@ datasource db {
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
     url      = env("DATABASE_URL")
 }
+// Replace sqlite with supported connector (pssql or mysql)
+//enum SavingAccountType {
+//    UNBOUND
+//    BOUND
+//    BONDS
+//}
 
 model Example {
     id        String   @id @default(cuid())
@@ -73,6 +79,7 @@ model SavingsAccount {
     name            String
     location        String
     userId          String
+    type            String
     user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
     transactions    Transaction[]
 }
