@@ -11,8 +11,7 @@ export const daveRouter = createTRPCRouter({
         const accounts = await ctx.prisma.savingsAccount.findMany({
             where: {
                 userId: ctx.session.user.id,
-            },
-            take: 10,
+            }
         });
         return accounts;
     }),

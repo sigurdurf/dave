@@ -17,7 +17,7 @@ export default Accounts;
 const AccountList: React.FC = () => {
     
     const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery();
-    
+    const { mutate } = api.dave.createSavingsAccount.useMutation();
     const someAmount = 800.00;
     const totalSavings = someAmount * (myAccounts ? myAccounts.length : 0);
     return (
@@ -37,7 +37,16 @@ const AccountList: React.FC = () => {
         </table>
         <>
           <p>Add account</p>
-          <form action="">
+          <form id="addAccountForm" onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            mutate({ 
+              name: formData.get('name'),
+              location: formData.get('location')
+            })
+            e.currentTarget.reset()
+            // TODO: refresh account data 
+          }}>
             <input name="name" type="text" placeholder="Account name"/>
             <input name="location" type="text" placeholder="Account location" />
             <select name="type" id="">
@@ -45,7 +54,7 @@ const AccountList: React.FC = () => {
               <option>Unbound</option>
               <option>Bonds</option>
             </select>
-            <button>Add new account</button>
+            <button type="submit">Add new account</button>
           </form>
         </>
       </>
