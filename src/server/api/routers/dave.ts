@@ -1,10 +1,16 @@
 
-import { Account, SavingsAccount } from "@prisma/client";
 import { z } from "zod";
 import {
     createTRPCRouter,
     protectedProcedure,
 } from "~/server/api/trpc";
+
+const SavingsAccountType = z.union([
+    z.literal('BOUND'),
+    z.literal('UNBOUND'),
+    z.literal('BONDS'),
+    z.literal('CASH')
+])
 
 export const daveRouter = createTRPCRouter({
     getAllSavingsAccount: protectedProcedure.query(async ({ ctx }) => {
@@ -19,7 +25,8 @@ export const daveRouter = createTRPCRouter({
         .input(
             z.object({
                 name: z.string().min(3).max(40),
-                location: z.string().min(3).max(40)
+                location: z.string().min(3).max(40),
+                type: SavingsAccountType
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -32,6 +39,7 @@ export const daveRouter = createTRPCRouter({
                     userId,
                     name: input.name,
                     location: input.location,
+                    type: input.type
                 },
             });
             return savingAccount;
