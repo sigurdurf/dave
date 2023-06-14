@@ -96,6 +96,31 @@ export const daveRouter = createTRPCRouter({
             })
             return sum(transactions, 'amount');
         }),
+    getTotalsSavingsSum: protectedProcedure
+        .query(async ({ ctx }) => {
+            const userId = ctx.session.user.id;
+            if (userId === undefined) {
+                return
+            }
+            const accounts = await ctx.prisma.savingsAccount.findMany({
+                where: {
+                    user: {
+                        id: userId
+                    }
+                }
+            }
+            )
+            let totalSum = 0;
+            for(let i = 0; i < accounts.length; i++){
+                const transactions = await ctx.prisma.transaction.findMany({
+                    where: {
+                        accountId: accounts[i]?.id
+                        }
+                })
+                totalSum += sum(transactions, 'amount')
+            }
+            return totalSum
+        }),
     getAccountTransactions: protectedProcedure
         .input(
             z.string()

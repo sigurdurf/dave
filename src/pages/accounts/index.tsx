@@ -16,15 +16,16 @@ const Accounts: NextPage = () => {
 export default Accounts;
 
 const Balance: React.FC = ({account}) => {
-  const { data: balance} = api.dave.getSavingsAccountSum.useQuery(account.id)
+  const { data: balance } = api.dave.getSavingsAccountSum.useQuery(account.id)
   return <span>{balance}</span>
 }
 
 const AccountSummary: React.FC = () => {
   const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery()
+  const { data: total } = api.dave.getTotalsSavingsSum.useQuery()
   return (
     <>
-    <p>Total savings<br /><span>${0}</span></p>
+    <p>Total savings<br /><span>${total}</span></p>
         <p>Accounts</p>
         <table className={styles.table}>
           <thead>
