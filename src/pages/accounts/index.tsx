@@ -79,7 +79,7 @@ const AddAccount: React.FC = () => {
             mutate({ 
               name: newName.toString(),
               location: newLocation.toString(),
-              type: newType
+              type: newType.toString()
             })
             e.currentTarget.reset()
             // TODO: refresh account data 

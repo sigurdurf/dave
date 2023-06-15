@@ -32,7 +32,7 @@ export const daveRouter = createTRPCRouter({
             z.object({
                 name: z.string().min(3).max(40),
                 location: z.string().min(3).max(40),
-                type: SavingsAccountType
+                type: z.string()
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -45,7 +45,7 @@ export const daveRouter = createTRPCRouter({
                     userId,
                     name: input.name,
                     location: input.location,
-                    type: input.type
+                    type: SavingsAccountType.parse(input.type)
                 },
             });
             const transaction = await ctx.prisma.transaction.create({
