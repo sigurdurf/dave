@@ -1,22 +1,28 @@
 import type { NextPage } from "next";
-import type { SavingsAccount, Transaction } from "@prisma/client";
+import type { SavingsAccount } from "@prisma/client";
 import { api } from "~/utils/api";
 import styles from "./index.module.css";
-import { useEffect, useState } from "react";
-import { useQuery } from 'trpc/client';
 
 const Accounts: NextPage = () => {
 
     return (
-        <>
-            <AccountList />
-        </>
+      <>
+      <AccountSummary/>
+      <div className={styles.container}>
+        <AddAccount />
+        <AddTransaction />
+      </div>
+      </>
     )
 }
 export default Accounts;
 
-const Balance: React.FC = ({account}) => {
-  const { data: balance } = api.dave.getSavingsAccountSum.useQuery(account.id)
+interface BalanceProps {
+  AccountId: string
+}
+
+const Balance = (props: BalanceProps) => {
+  const { data: balance } = api.dave.getSavingsAccountSum.useQuery(props.AccountId)
   return <span>{balance}</span>
 }
 
@@ -40,7 +46,7 @@ const AccountSummary: React.FC = () => {
             <td>{account?.name}</td>
             <td>{account?.location}</td>
             <td>{account?.type !== undefined ? account.type : "Some type"}</td>
-            <td><Balance account={account} /></td>
+            <td><Balance AccountId={account.id} /></td>
 
           </tr>
         ))}
@@ -64,10 +70,17 @@ const AddAccount: React.FC = () => {
 
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
+            const newName = formData.get('name');
+            const newLocation = formData.get('location');
+            const newType = formData.get('type');
+            if (!newName || !newLocation || !newType){
+              return
+            }
             mutate({ 
-              name: formData.get('name'),
-              location: formData.get('location'),
-              type: formData.get('type')
+              name: newName.toString(),
+              location: newLocation.toString(),
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              type: newType
             })
             e.currentTarget.reset()
             // TODO: refresh account data 
@@ -111,6 +124,7 @@ const AddTransaction: React.FC = () => {
   const { mutate, error } = api.dave.createTransaction.useMutation({
     onSuccess: () => {
       void ctx.dave.getSavingsAccountSum.invalidate();
+      void ctx.dave.getTotalsSavingsSum.invalidate();
     }
   });
   const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery();
@@ -122,9 +136,15 @@ const AddTransaction: React.FC = () => {
 
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
+            const newAmount = formData.get('amount');
+            const newAccountId = formData.get('accountId');
+            if (newAmount === null || newAccountId === null){
+              return
+            }
             mutate({ 
-              amount: parseInt(formData.get('amount')),
-              accountId: formData.get('accountId')
+              amount: parseInt(newAmount.toString()),
+              accountId: newAccountId.toString()
+
             })
             e.currentTarget.reset()
             // TODO: refresh account data 
@@ -154,19 +174,3 @@ const AddTransaction: React.FC = () => {
           </div>
   )
 }
-
-const AccountList: React.FC = () => {
-
-    
-
-    
-    return (
-      <>
-        <AccountSummary/>
-        <div className={styles.container}>
-          <AddAccount />
-          <AddTransaction />
-        </div>
-      </>
-    )
-  }

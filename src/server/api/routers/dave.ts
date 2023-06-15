@@ -4,18 +4,19 @@ import {
     createTRPCRouter,
     protectedProcedure,
 } from "~/server/api/trpc";
-import { Transaction } from "@prisma/client";
+import type { Transaction } from "@prisma/client";
 
-const SavingsAccountType = z.union([
+export const SavingsAccountType = z.union([
     z.literal('BOUND'),
     z.literal('UNBOUND'),
     z.literal('BONDS'),
     z.literal('CASH')
 ])
-const sum = function(items, prop: string): number {
-    return items.reduce( function(a: number, b: number) : number {
-      return a + b[prop]
-    }, 0)
+
+const sumTransactions = function(items: Transaction[]) {
+    return items.reduce( function(a: number, b: Transaction) {
+      return a + b.amount;
+    }, 0);
   }
 export const daveRouter = createTRPCRouter({
     getAllSavingsAccount: protectedProcedure.query(async ({ ctx }) => {
@@ -94,7 +95,7 @@ export const daveRouter = createTRPCRouter({
                     }
                 }
             })
-            return sum(transactions, 'amount');
+            return sumTransactions(transactions);
         }),
     getTotalsSavingsSum: protectedProcedure
         .query(async ({ ctx }) => {
@@ -117,7 +118,7 @@ export const daveRouter = createTRPCRouter({
                         accountId: accounts[i]?.id
                         }
                 })
-                totalSum += sum(transactions, 'amount')
+                totalSum += sumTransactions(transactions)
             }
             return totalSum
         }),
