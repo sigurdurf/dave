@@ -162,7 +162,7 @@ const AddTransaction: React.FC = () => {
                 ))}
               </select>
               {error?.data?.zodError?.fieldErrors.account && (
-                <span className={styles.error}>{error.data.zodError.fieldErrors.type}</span>
+                <span className={styles.error}>{error.data.zodError.fieldErrors.account}</span>
               )}
             </li>
             <li>
