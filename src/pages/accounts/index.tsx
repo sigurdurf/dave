@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import type { SavingsAccount } from "@prisma/client";
+import type { SavingsAccount, Transaction } from "@prisma/client";
 import { api } from "~/utils/api";
 import styles from "./index.module.css";
 
@@ -26,6 +26,20 @@ const Balance = (props: BalanceProps) => {
   return <span>{balance}</span>
 }
 
+const TransactionList = (props: BalanceProps) => {
+  const { data: transactions } = api.dave.getAccountTransactions.useQuery(props.AccountId)
+
+  return (
+    <>
+      <ul>
+        {transactions?.map( (transaction) => (
+          <li key={transaction.id}>{transaction.amount} - {transaction.comment} - {transaction.datetime.toDateString()}</li>
+        ))}
+      </ul>
+    </>
+  )
+}
+
 const AccountSummary: React.FC = () => {
   const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery()
   const { data: total } = api.dave.getTotalsSavingsSum.useQuery()
@@ -41,14 +55,21 @@ const AccountSummary: React.FC = () => {
           </thead>
           <tbody>
         { myAccounts?.map( (account: SavingsAccount) => (
-          
+          // TODO: on click for tr, show transactions list, if another row is clicked, collapse that one and open the new one
+          <>
           <tr className={styles.savingAccountEntry} key={account.id}>
             <td>{account?.name}</td>
             <td>{account?.location}</td>
             <td>{account?.type !== undefined ? account.type : "Some type"}</td>
             <td><Balance AccountId={account.id} /></td>
-
+            <td onClick={() => document.getElementById(account?.id).hidden = !document.getElementById(account?.id).hidden}>Show transactions</td>
           </tr>
+          <tr id={account.id} hidden>
+            <td colSpan={4}>
+              <TransactionList AccountId={account.id} />
+            </td>
+          </tr>
+          </>
         ))}
           </tbody>
         </table>
@@ -124,6 +145,7 @@ const AddTransaction: React.FC = () => {
     onSuccess: () => {
       void ctx.dave.getSavingsAccountSum.invalidate();
       void ctx.dave.getTotalsSavingsSum.invalidate();
+      void ctx.dave.getAccountTransactions.invalidate();
     }
   });
   const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery();
@@ -137,13 +159,18 @@ const AddTransaction: React.FC = () => {
             const formData = new FormData(e.currentTarget);
             const newAmount = formData.get('amount');
             const newAccountId = formData.get('accountId');
-            if (newAmount === null || newAccountId === null){
+            let newComment = formData.get('comment');
+
+            if (!newAmount || !newAccountId){
               return
+            }
+            if (!newComment) {
+              newComment = "";
             }
             mutate({ 
               amount: parseInt(newAmount.toString()),
-              accountId: newAccountId.toString()
-
+              accountId: newAccountId.toString(),
+              comment: newComment.toString()
             })
             e.currentTarget.reset()
             // TODO: refresh account data 
@@ -156,7 +183,13 @@ const AddTransaction: React.FC = () => {
               )}
             </li>
             <li>
-              <select name="accountId" id="">
+              <input name="comment" type="text" placeholder="comment transaction" />
+              {error?.data?.zodError?.fieldErrors.comment && (
+                <span className={styles.error}>{error.data.zodError.fieldErrors.comment}</span>
+              )}
+            </li>
+            <li>
+              <select name="accountId">
                 {myAccounts?.map((account) => (
                   <option key={account.id} value={account.id}>{account.name}</option>
                 ))}

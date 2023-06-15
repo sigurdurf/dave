@@ -90,4 +90,6 @@ model Transaction {
     datetime    DateTime @default(now())
     account     SavingsAccount @relation(fields: [accountId], references: [id])
     accountId   String
+    comment     String @default("")
+    // TODO: Add comment row to table 
 }
