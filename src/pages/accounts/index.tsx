@@ -79,7 +79,6 @@ const AddAccount: React.FC = () => {
             mutate({ 
               name: newName.toString(),
               location: newLocation.toString(),
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               type: newType
             })
             e.currentTarget.reset()
