@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import type { SavingsAccount, Transaction } from "@prisma/client";
+import type { SavingsAccount } from "@prisma/client";
 import { api } from "~/utils/api";
 import styles from "./index.module.css";
 
@@ -11,6 +11,7 @@ const Accounts: NextPage = () => {
       <div className={styles.container}>
         <AddAccount />
         <AddTransaction />
+        <HideAccountForm />
       </div>
       </>
     )
@@ -136,6 +137,54 @@ const AddAccount: React.FC = () => {
           </form>
           </div>
         
+  )
+}
+
+const HideAccountForm: React.FC = () => {
+  const ctx = api.useContext();
+  const { mutate, error } = api.dave.hideAccount.useMutation({
+    onSuccess: () => {
+      void ctx.dave.getSavingsAccountSum.invalidate();
+      void ctx.dave.getTotalsSavingsSum.invalidate();
+      void ctx.dave.getAccountTransactions.invalidate();
+      void ctx.dave.getAllSavingsAccount.invalidate();
+    }
+  })
+  const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery();
+
+  return (
+    <div className={styles.flexOuter}>
+          <p>Remove account</p>
+          <form id="addTransactionForm" onSubmit={(e) => {
+
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const accountId = formData.get('accountId');
+
+            if (!accountId){
+              return
+            }
+            mutate(accountId.toString())
+            e.currentTarget.reset()
+            // TODO: refresh account data 
+          }}>
+            <ul className={styles.flexOuter}>
+            <li>
+              <select name="accountId">
+                {myAccounts?.map((account) => (
+                  <option key={account.id} value={account.id}>{account.name}</option>
+                ))}
+              </select>
+              {error?.data?.code && (
+                <span className={styles.error}>{error.message}</span>
+              )}
+            </li>
+            <li>
+            <button type="submit">Remove account</button>
+            </li>
+            </ul>
+          </form>
+          </div>
   )
 }
 

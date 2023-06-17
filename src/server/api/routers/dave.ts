@@ -4,7 +4,8 @@ import {
     createTRPCRouter,
     protectedProcedure,
 } from "~/server/api/trpc";
-import type { Transaction } from "@prisma/client";
+import type { PrismaClient, Transaction, User} from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 
 export const SavingsAccountType = z.union([
     z.literal('BOUND'),
@@ -18,11 +19,33 @@ const sumTransactions = function(items: Transaction[]) {
       return a + b.amount;
     }, 0);
   }
+const enum OrderType {
+    desc = "desc",
+    asc = "asc"
+}
+
+const getTransactionsQuery = async (accountId: string, prisma: PrismaClient, userId: string, order: OrderType = OrderType.desc) => {
+    const transactions = await prisma.transaction.findMany({
+        where: {
+            account: {
+                user: {
+                    id: userId
+                },
+                id: accountId
+            } 
+        },
+        orderBy: {
+            datetime: order
+        }
+    });
+    return transactions;
+}
 export const daveRouter = createTRPCRouter({
     getAllSavingsAccount: protectedProcedure.query(async ({ ctx }) => {
         const accounts = await ctx.prisma.savingsAccount.findMany({
             where: {
                 userId: ctx.session.user.id,
+                hidden: false
             }
         });
         return accounts;
@@ -52,6 +75,7 @@ export const daveRouter = createTRPCRouter({
                 data: {
                     amount: 0,
                     accountId: savingAccount.id,
+                    comment: "Account created"
                 }
             })
             return [savingAccount, transaction];
@@ -142,5 +166,32 @@ export const daveRouter = createTRPCRouter({
                 }
             })
             return transactions
+        }),
+    hideAccount: protectedProcedure
+        .input(
+            z.string()
+        )
+        .mutation(async ({ ctx, input }) => {
+            const userId = ctx.session.user.id;
+            if (!userId) {
+                return
+            }
+            const transactions = await getTransactionsQuery(input, ctx.prisma, userId);
+            const accountBalance = sumTransactions(transactions);
+            if (accountBalance != 0) {
+                throw new TRPCError({
+                    code: "PRECONDITION_FAILED",
+                    message: "Account balance must be 0"
+                })
+            }
+            const account = await ctx.prisma.savingsAccount.update({
+                where: {
+                    id: input 
+                },
+                data: {
+                    hidden: true
+                }
+            })
+            return account;
         })
 })

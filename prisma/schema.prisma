@@ -80,6 +80,7 @@ model SavingsAccount {
     location        String
     userId          String
     type            String @default("BOUND")
+    hidden          Boolean @default(false)
     user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
     transactions    Transaction[]
 }
