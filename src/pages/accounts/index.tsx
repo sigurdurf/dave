@@ -2,17 +2,22 @@ import type { NextPage } from "next";
 import type { SavingsAccount } from "@prisma/client";
 import { api } from "~/utils/api";
 import styles from "./index.module.css";
+import {Doughnut} from 'react-chartjs-2';
+import {Chart, ArcElement} from 'chart.js'
+Chart.register(ArcElement);
 
 const Accounts: NextPage = () => {
 
     return (
       <>
-      <AccountSummary/>
-      <div className={styles.container}>
-        <AddAccount />
-        <AddTransaction />
-        <HideAccountForm />
-      </div>
+        <AccountSummary/>
+        <div className={styles.container}>
+            <AddAccount />
+            <AddTransaction />
+            <HideAccountForm />
+            
+        </div>
+        <SavingsBarChart />
       </>
     )
 }
@@ -148,6 +153,7 @@ const HideAccountForm: React.FC = () => {
       void ctx.dave.getTotalsSavingsSum.invalidate();
       void ctx.dave.getAccountTransactions.invalidate();
       void ctx.dave.getAllSavingsAccount.invalidate();
+      void ctx.dave.getAllAccountBalances.invalidate();
     }
   })
   const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery();
@@ -195,6 +201,7 @@ const AddTransaction: React.FC = () => {
       void ctx.dave.getSavingsAccountSum.invalidate();
       void ctx.dave.getTotalsSavingsSum.invalidate();
       void ctx.dave.getAccountTransactions.invalidate();
+      void ctx.dave.getAllAccountBalances.invalidate();
     }
   });
   const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery();
@@ -254,4 +261,22 @@ const AddTransaction: React.FC = () => {
           </form>
           </div>
   )
+}
+
+const SavingsBarChart: React.FC = () => {
+  const { data: accountBalances } = api.dave.getAllAccountBalances.useQuery();
+  console.log(accountBalances)
+  const data = {
+    labels: [
+  ],
+  datasets: [{
+    data: accountBalances,
+  }],
+  
+  };
+    return (
+        <div className={styles.accountSplit}>
+         <Doughnut data={data} width={400} height={400} />
+        </div>
+    )
 }

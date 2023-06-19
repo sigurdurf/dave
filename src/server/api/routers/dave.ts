@@ -193,5 +193,27 @@ export const daveRouter = createTRPCRouter({
                 }
             })
             return account;
+        }),
+    getAllAccountBalances: protectedProcedure
+        .query( async({ ctx }) => {
+            const userId = ctx.session.user.id;
+            if (userId === undefined) {
+                return
+            }
+            const accounts = await ctx.prisma.savingsAccount.findMany({
+                where: {
+                    user: {
+                        id: userId
+                    },
+                    hidden: false
+                }
+            }
+            )
+            const balances = await Promise.all(accounts.map( async (account) => {
+                const transactions =  await getTransactionsQuery(account.id, ctx.prisma, userId)
+                return sumTransactions(transactions)
+            }))
+            console.log(balances)
+            return balances;
         })
 })
