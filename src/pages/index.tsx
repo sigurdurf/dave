@@ -37,9 +37,6 @@ const AuthShowcase: React.FC = () => {
 
   return (
     <div className={styles.authContainer}>
-      <nav>
-        <Link href="/accounts">Accounts</Link>
-      </nav>
       <p className={styles.showcaseText}>
         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
         {secretMessage && <span> - {secretMessage}</span>}
