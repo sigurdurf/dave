@@ -269,7 +269,7 @@ const SavingsBarChart: React.FC = () => {
 
   const data = {
     datasets: [{
-      data: accountBalances,
+      data: accountBalances?.filter(x => x > 0),
     }],
   };
   const options = {
