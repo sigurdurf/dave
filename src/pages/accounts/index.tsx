@@ -3,11 +3,12 @@ import type { SavingsAccount } from "@prisma/client";
 import { api } from "~/utils/api";
 import styles from "./index.module.css";
 import {Doughnut} from 'react-chartjs-2';
-import {Chart, ArcElement} from 'chart.js'
-Chart.register(ArcElement);
+import {Chart, ArcElement, Colors} from 'chart.js'
+import autocolors from 'chartjs-plugin-autocolors';
+import { useRef } from "react";
+Chart.register(ArcElement, Colors);
 
 const Accounts: NextPage = () => {
-
     return (
       <>
         <AccountSummary/>
@@ -51,8 +52,8 @@ const AccountSummary: React.FC = () => {
   const { data: total } = api.dave.getTotalsSavingsSum.useQuery()
   return (
     <>
-    <p>Total savings<br /><span>${total}</span></p>
-        <p>Accounts</p>
+    <p className={styles.text}>Total savings<br /><span>${total}</span></p>
+        <p className={styles.text}>Accounts</p>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -92,7 +93,7 @@ const AddAccount: React.FC = () => {
   });
   return (
           <div className={styles.flexOuter}>
-          <p>Add account</p>
+          <p className={styles.text}>Add account</p>
           <form id="addAccountForm" onSubmit={(e) => {
 
             e.preventDefault();
@@ -160,7 +161,7 @@ const HideAccountForm: React.FC = () => {
 
   return (
     <div className={styles.flexOuter}>
-          <p>Remove account</p>
+          <p className={styles.text}>Remove account</p>
           <form id="addTransactionForm" onSubmit={(e) => {
 
             e.preventDefault();
@@ -208,7 +209,7 @@ const AddTransaction: React.FC = () => {
 
   return (
     <div className={styles.flexOuter}>
-          <p>Add transaction</p>
+          <p className={styles.text}>Add transaction</p>
           <form id="addTransactionForm" onSubmit={(e) => {
 
             e.preventDefault();
@@ -255,7 +256,7 @@ const AddTransaction: React.FC = () => {
               )}
             </li>
             <li>
-            <button type="submit">Add new account</button>
+            <button type="submit">Add transaction</button>
             </li>
             </ul>
           </form>
@@ -265,18 +266,22 @@ const AddTransaction: React.FC = () => {
 
 const SavingsBarChart: React.FC = () => {
   const { data: accountBalances } = api.dave.getAllAccountBalances.useQuery();
-  console.log(accountBalances)
+
   const data = {
-    labels: [
-  ],
-  datasets: [{
-    data: accountBalances,
-  }],
-  
+    datasets: [{
+      data: accountBalances,
+    }],
   };
-    return (
-        <div className={styles.accountSplit}>
-         <Doughnut data={data} width={400} height={400} />
-        </div>
-    )
+  const options = {
+    plugins: {
+      colors: {
+        forceOverride: true
+      }
+    }
+  };
+  return (
+      <div className={styles.accountSplit}>
+        <Doughnut data={data} options={options} width={400} height={400} />
+      </div>
+  )
 }
