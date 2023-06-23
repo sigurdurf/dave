@@ -4,8 +4,7 @@ import { api } from "~/utils/api";
 import styles from "./index.module.css";
 import {Doughnut} from 'react-chartjs-2';
 import {Chart, ArcElement, Colors} from 'chart.js'
-import autocolors from 'chartjs-plugin-autocolors';
-import { useRef } from "react";
+
 Chart.register(ArcElement, Colors);
 
 const Accounts: NextPage = () => {

@@ -5,6 +5,7 @@ export default function Header() {
       <nav>
         <Link href="/">Dashboard</Link>
         <Link href="/accounts">Accounts</Link>
+        <Link href="/expenses">Expenses</Link>
       </nav>
     );
   }
