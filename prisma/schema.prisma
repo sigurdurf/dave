@@ -64,6 +64,8 @@ model User {
   accounts       Account[]
   sessions       Session[]
   SavingAccounts SavingsAccount[]
+  Expense        Expense[]
+  Tag            Tag[]
 }
 
 model VerificationToken {
@@ -99,11 +101,14 @@ model Transaction {
 }
 
 model Expense {
-  id        String          @id @default(cuid())
-  amount    Int
-  accountId String
-  account   SavingsAccount  @relation(fields: [accountId], references: [id])
-  tags      TagsOnExpense[]
+  id               String          @id @default(cuid())
+  title            String
+  amount           Int
+  userId           String
+  user             User            @relation(fields: [userId], references: [id])
+  tags             TagsOnExpense[]
+  SavingsAccount   SavingsAccount? @relation(fields: [savingsAccountId], references: [id])
+  savingsAccountId String?
 }
 
 model TagsOnExpense {
@@ -116,9 +121,11 @@ model TagsOnExpense {
 }
 
 model Tag {
-  id            String          @id @default(cuid())
-  title         String
-  account       SavingsAccount  @relation(fields: [accountId], references: [id])
-  accountId     String
-  TagsOnExpense TagsOnExpense[]
+  id               String          @id @default(cuid())
+  title            String
+  user             User            @relation(fields: [userId], references: [id])
+  userId           String
+  TagsOnExpense    TagsOnExpense[]
+  SavingsAccount   SavingsAccount? @relation(fields: [savingsAccountId], references: [id])
+  savingsAccountId String?
 }
