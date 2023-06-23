@@ -19,6 +19,7 @@ const Accounts: NextPage = () => {
             
         </div>
         <SavingsBarChart />
+        <DebtBarChart />
       </>
     )
 }
@@ -281,6 +282,29 @@ const SavingsBarChart: React.FC = () => {
   };
   return (
       <div className={styles.accountSplit}>
+        <p>Savings distribution</p>
+        <Doughnut data={data} options={options} width={400} height={400} />
+      </div>
+  )
+}
+const DebtBarChart: React.FC = () => {
+  const { data: accountBalances } = api.dave.getAllAccountBalances.useQuery();
+
+  const data = {
+    datasets: [{
+      data: accountBalances?.filter(x => x < 0),
+    }],
+  };
+  const options = {
+    plugins: {
+      colors: {
+        forceOverride: true
+      }
+    }
+  };
+  return (
+      <div className={styles.accountSplit}>
+        <p>{accountBalances?.filter(x => x < 0).length !== 0 ? "Debt distribution" : ""}</p>
         <Doughnut data={data} options={options} width={400} height={400} />
       </div>
   )
