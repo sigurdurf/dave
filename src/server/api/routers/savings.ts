@@ -4,7 +4,7 @@ import {
     createTRPCRouter,
     protectedProcedure,
 } from "~/server/api/trpc";
-import type { PrismaClient, Transaction, User} from "@prisma/client";
+import type { PrismaClient, Transaction} from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 
 export const SavingsAccountType = z.union([
@@ -40,7 +40,7 @@ const getTransactionsQuery = async (accountId: string, prisma: PrismaClient, use
     });
     return transactions;
 }
-export const daveRouter = createTRPCRouter({
+export const savingsRouter = createTRPCRouter({
     getAllSavingsAccount: protectedProcedure.query(async ({ ctx }) => {
         const accounts = await ctx.prisma.savingsAccount.findMany({
             where: {

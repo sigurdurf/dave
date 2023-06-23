@@ -29,12 +29,12 @@ interface BalanceProps {
 }
 
 const Balance = (props: BalanceProps) => {
-  const { data: balance } = api.dave.getSavingsAccountSum.useQuery(props.AccountId)
+  const { data: balance } = api.savings.getSavingsAccountSum.useQuery(props.AccountId)
   return <span>{balance}</span>
 }
 
 const TransactionList = (props: BalanceProps) => {
-  const { data: transactions } = api.dave.getAccountTransactions.useQuery(props.AccountId)
+  const { data: transactions } = api.savings.getAccountTransactions.useQuery(props.AccountId)
 
   return (
     <>
@@ -48,8 +48,8 @@ const TransactionList = (props: BalanceProps) => {
 }
 
 const AccountSummary: React.FC = () => {
-  const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery()
-  const { data: total } = api.dave.getTotalsSavingsSum.useQuery()
+  const { data: myAccounts } = api.savings.getAllSavingsAccount.useQuery()
+  const { data: total } = api.savings.getTotalsSavingsSum.useQuery()
   return (
     <>
     <p className={styles.text}>Total savings<br /><span>${total}</span></p>
@@ -86,9 +86,9 @@ const AccountSummary: React.FC = () => {
 
 const AddAccount: React.FC = () => {
   const ctx = api.useContext()
-  const { mutate, error } = api.dave.createSavingsAccount.useMutation({
+  const { mutate, error } = api.savings.createSavingsAccount.useMutation({
     onSuccess: () => {
-      void ctx.dave.getAllSavingsAccount.invalidate();
+      void ctx.savings.getAllSavingsAccount.invalidate();
     }
   });
   return (
@@ -148,16 +148,16 @@ const AddAccount: React.FC = () => {
 
 const HideAccountForm: React.FC = () => {
   const ctx = api.useContext();
-  const { mutate, error } = api.dave.hideAccount.useMutation({
+  const { mutate, error } = api.savings.hideAccount.useMutation({
     onSuccess: () => {
-      void ctx.dave.getSavingsAccountSum.invalidate();
-      void ctx.dave.getTotalsSavingsSum.invalidate();
-      void ctx.dave.getAccountTransactions.invalidate();
-      void ctx.dave.getAllSavingsAccount.invalidate();
-      void ctx.dave.getAllAccountBalances.invalidate();
+      void ctx.savings.getSavingsAccountSum.invalidate();
+      void ctx.savings.getTotalsSavingsSum.invalidate();
+      void ctx.savings.getAccountTransactions.invalidate();
+      void ctx.savings.getAllSavingsAccount.invalidate();
+      void ctx.savings.getAllAccountBalances.invalidate();
     }
   })
-  const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery();
+  const { data: myAccounts } = api.savings.getAllSavingsAccount.useQuery();
 
   return (
     <div className={styles.flexOuter}>
@@ -197,15 +197,15 @@ const HideAccountForm: React.FC = () => {
 
 const AddTransaction: React.FC = () => {
   const ctx = api.useContext()
-  const { mutate, error } = api.dave.createTransaction.useMutation({
+  const { mutate, error } = api.savings.createTransaction.useMutation({
     onSuccess: () => {
-      void ctx.dave.getSavingsAccountSum.invalidate();
-      void ctx.dave.getTotalsSavingsSum.invalidate();
-      void ctx.dave.getAccountTransactions.invalidate();
-      void ctx.dave.getAllAccountBalances.invalidate();
+      void ctx.savings.getSavingsAccountSum.invalidate();
+      void ctx.savings.getTotalsSavingsSum.invalidate();
+      void ctx.savings.getAccountTransactions.invalidate();
+      void ctx.savings.getAllAccountBalances.invalidate();
     }
   });
-  const { data: myAccounts } = api.dave.getAllSavingsAccount.useQuery();
+  const { data: myAccounts } = api.savings.getAllSavingsAccount.useQuery();
 
   return (
     <div className={styles.flexOuter}>
@@ -265,7 +265,7 @@ const AddTransaction: React.FC = () => {
 }
 
 const SavingsBarChart: React.FC = () => {
-  const { data: accountBalances } = api.dave.getAllAccountBalances.useQuery();
+  const { data: accountBalances } = api.savings.getAllAccountBalances.useQuery();
 
   const data = {
     datasets: [{
@@ -287,7 +287,7 @@ const SavingsBarChart: React.FC = () => {
   )
 }
 const DebtBarChart: React.FC = () => {
-  const { data: accountBalances } = api.dave.getAllAccountBalances.useQuery();
+  const { data: accountBalances } = api.savings.getAllAccountBalances.useQuery();
 
   const data = {
     datasets: [{

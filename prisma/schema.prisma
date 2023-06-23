@@ -86,8 +86,6 @@ model SavingsAccount {
   hidden       Boolean       @default(false)
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
-  Expense      Expense[]
-  Tag          Tag[]
 }
 
 model Transaction {
@@ -101,14 +99,12 @@ model Transaction {
 }
 
 model Expense {
-  id               String          @id @default(cuid())
-  title            String
-  amount           Int
-  userId           String
-  user             User            @relation(fields: [userId], references: [id])
-  tags             TagsOnExpense[]
-  SavingsAccount   SavingsAccount? @relation(fields: [savingsAccountId], references: [id])
-  savingsAccountId String?
+  id     String          @id @default(cuid())
+  title  String
+  amount Int
+  userId String
+  user   User            @relation(fields: [userId], references: [id])
+  tags   TagsOnExpense[]
 }
 
 model TagsOnExpense {
@@ -121,11 +117,9 @@ model TagsOnExpense {
 }
 
 model Tag {
-  id               String          @id @default(cuid())
-  title            String
-  user             User            @relation(fields: [userId], references: [id])
-  userId           String
-  TagsOnExpense    TagsOnExpense[]
-  SavingsAccount   SavingsAccount? @relation(fields: [savingsAccountId], references: [id])
-  savingsAccountId String?
+  id            String          @id @default(cuid())
+  title         String
+  user          User            @relation(fields: [userId], references: [id])
+  userId        String
+  TagsOnExpense TagsOnExpense[]
 }
