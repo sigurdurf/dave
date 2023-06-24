@@ -66,6 +66,7 @@ model User {
   SavingAccounts SavingsAccount[]
   Expense        Expense[]
   Tag            Tag[]
+  Income         Income[]
 }
 
 model VerificationToken {
@@ -122,4 +123,12 @@ model Tag {
   user          User            @relation(fields: [userId], references: [id])
   userId        String
   TagsOnExpense TagsOnExpense[]
+}
+
+model Income {
+  id     String @id @default(cuid())
+  amount Int
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  source String
 }
