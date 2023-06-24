@@ -2,6 +2,10 @@ import { Expense } from "@prisma/client";
 import type { NextPage } from "next";
 import { api } from "~/utils/api"
 
+interface ExpenseProps {
+  expenseId: string
+}
+
 const Accounts: NextPage = () => {
     return (
       <>
@@ -38,8 +42,27 @@ const ExpensesList = () => {
   return (
     <ul>
       {expenses?.map( (expense: Expense) => (
-        <li key={expense.id}>{expense.title} : {expense.amount}</li>
+        <li key={expense.id}>{expense.title} : {expense.amount} - <RemoveExpense expenseId={expense.id} /></li>
       ))}
     </ul>
+  )
+}
+
+const RemoveExpense = (props: ExpenseProps) => {
+  const ctx = api.useContext();
+  const {mutate, error } = api.expenses.removeExpense.useMutation({
+    onSuccess: () => {
+      void ctx.expenses.getAllExpenses.invalidate();
+    }
+  })
+
+  const removeExpense = () => {
+    mutate(props.expenseId)
+  }
+
+  return (
+    <>
+      <button onClick={removeExpense}>Remove</button>
+    </>
   )
 }

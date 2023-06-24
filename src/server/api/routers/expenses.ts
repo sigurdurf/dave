@@ -30,5 +30,18 @@ export const expensesRouter = createTRPCRouter({
                 }
             });
             return expenses;
+        }),
+    removeExpense: protectedProcedure
+        .input(
+            z.string()
+        )
+        .mutation(async ({ ctx, input }) => {
+            const expense = await ctx.prisma.expense.deleteMany({
+                where: {
+                    id: input,
+                    userId: ctx.session.user.id
+                }
+            })
+            return expense;
         })
 })
